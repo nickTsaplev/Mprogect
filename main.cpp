@@ -15,6 +15,10 @@
 
 using namespace std;
 
+#include "man.h"
+
+
+
 struct matrix
 {
 
@@ -47,6 +51,8 @@ struct matrix
 
 	void init(int n_,int m_,int type,int maxm)
 	{
+        auto seed = time(0);
+					srand(seed);
 		p.resize(n_);
 		for (int i=0;i<n_;i++)
 		{
@@ -55,12 +61,11 @@ struct matrix
 		n=n_;
 		m=m_;
 		if(type==2)
-			for(vector<float> u:p)
-				for(int y:u)
+			for(int i=0;i<n;i++)
+				for(int j=0;j<m;j++)
 				{
-					auto seed = time(0);
-					srand(seed);
-					y=(rand() % maxm);
+
+					p[i][j]=(rand() % maxm);
 				}
 	}
 
@@ -77,6 +82,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	in.resize(256);
 	sc.resize(256);
+    initM();
 	while(true)
 	{
         cout<<"$ ";
@@ -130,6 +136,23 @@ int _tmain(int argc, _TCHAR* argv[])
 					Fcin>>in[d].p[i][j];
             Fcin.close();
 		}
+		if(st=="wrtF")
+		{
+			char c; char d;
+			cin>>c>>d;
+			ofstream Fcout;string bc="D:\\";
+			bc+=c;
+			bc+=".txt";
+			Fcout.open(bc);
+			Fcout<<in[d].n<<" "<<in[d].m<<endl;
+			for(int i=0;i<in[d].n;i++)
+			{
+				for(int j=0;j<in[d].m;j++)
+					Fcout<<in[d].p[i][j]<<" ";
+				Fcout<<endl;
+			}
+			Fcout.close();
+		}
 		if(st=="outm")
 		{
 			char c;
@@ -158,11 +181,55 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			char c;char d;char e;
 			cin>>c>>d>>e;
+			in[e].init(in[c].n,in[c].m,0);
+			for(int i=0;i<in[c].n;i++)
+				for(int j=0;j<in[c].m;j++)
+					in[e].p[i][j]=in[c].p[i][j]*sc[d];
+		}
+		if(st=="tran")
+		{
+			char c;char d;
+			cin>>c>>d;
+			in[d].init(in[c].m,in[c].n,0);
+			for(int i=0;i<in[c].n;i++)
+				for(int j=0;j<in[c].m;j++)
+					in[d].p[j][i]=in[c].p[i][j];
+		}
+		if(st=="mulm")
+		{
+        	char c;char d;char e;
+			cin>>c>>d>>e;
+			in[e].init(in[c].n,in[d].m,0);
+			for(int i=0;i<in[e].n;i++)
+				for(int j=0;j<in[e].m;j++)
+				{
+					float r=1;
+					for(int l=0;l<in[c].n;l++)
+						r*=in[c].p[l][j];
+					for(int l=0;l<in[d].m;l++)
+						r*=in[d].p[i][l];
+
+					in[e].p[i][j]=r;
+				}
+		}
+		if(st=="mulc")
+		{
+			char c;float d;char e;
+			cin>>c>>d>>e;
             in[e].init(in[c].n,in[c].m,0);
 			for(int i=0;i<in[c].n;i++)
 				for(int j=0;j<in[c].m;j++)
-                    in[e].p[i][j]=in[c].p[i][j]*sc[d];
-        }
+					in[e].p[i][j]=in[c].p[i][j]*d;
+		}
+		if(st=="mana")
+			man();
+		if(st=="mans")
+		{
+			string a;
+			cin>>a;
+			man(a);
+		}
+
 	}
 	return 0;
 }
