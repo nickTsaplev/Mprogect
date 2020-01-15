@@ -99,19 +99,19 @@ int _tmain(int argc, _TCHAR* argv[])
 			int a;int b;char c;
 			cin>>a>>b>>c;
 			in[c].init(a,b,0);
-		}
+		}else
 		if(st=="gen1")
 		{
 			int a;int b;char c;
 			cin>>a>>b>>c;
 			in[c].init(a,b,1);
-		}
+		}else
 		if(st=="genR")
 		{
 			int a;int b;char c;int d;
 			cin>>a>>b>>d>>c;
 			in[c].init(a,b,2,d);
-		}
+		}else
 		if(st=="summ")
 		{
 			char a;char b;char c;
@@ -120,7 +120,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			for(int i=0;i<in[a].n;i++)
 				for(int j=0;j<in[a].m;j++)
                     in[c].p[i][j]=in[b].p[i][j]+in[a].p[i][j];
-		}
+		}else
 		if(st=="genF")
 		{
 			char c; char d;int a;int b;
@@ -135,7 +135,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				for(int j=0;j<in[d].m;j++)
 					Fcin>>in[d].p[i][j];
             Fcin.close();
-		}
+		}else
 		if(st=="wrtF")
 		{
 			char c; char d;
@@ -152,7 +152,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				Fcout<<endl;
 			}
 			Fcout.close();
-		}
+		}else
 		if(st=="outm")
 		{
 			char c;
@@ -164,19 +164,19 @@ int _tmain(int argc, _TCHAR* argv[])
 				cout<<endl;
 			}
 
-		}
+		}else
 		if(st=="cins")
 		{
 			char c;
 			cin>>c;
 			cin>>sc[c];
-		}
+		}else
 		if(st=="outs")
 		{
 			char c;
 			cin>>c;
 			cout<<sc[c];
-		}
+		}else
 		if(st=="muls")
 		{
 			char c;char d;char e;
@@ -185,7 +185,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			for(int i=0;i<in[c].n;i++)
 				for(int j=0;j<in[c].m;j++)
 					in[e].p[i][j]=in[c].p[i][j]*sc[d];
-		}
+		}else
 		if(st=="tran")
 		{
 			char c;char d;
@@ -194,7 +194,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			for(int i=0;i<in[c].n;i++)
 				for(int j=0;j<in[c].m;j++)
 					in[d].p[j][i]=in[c].p[i][j];
-		}
+		}else
 		if(st=="mulm")
 		{
         	char c;char d;char e;
@@ -211,7 +211,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 					in[e].p[i][j]=r;
 				}
-		}
+		}else
 		if(st=="mulc")
 		{
 			char c;float d;char e;
@@ -220,15 +220,24 @@ int _tmain(int argc, _TCHAR* argv[])
 			for(int i=0;i<in[c].n;i++)
 				for(int j=0;j<in[c].m;j++)
 					in[e].p[i][j]=in[c].p[i][j]*d;
-		}
+		}else
 		if(st=="mana")
 			man();
+    else
 		if(st=="mans")
 		{
 			string a;
 			cin>>a;
 			man(a);
-		}
+		}else
+    {
+      char dev;
+      cin>>dev;
+      int x;int y;
+      cin>>x>>y;
+      cin>>dev;
+      cout<<in[st[0]].p[x][y];
+    }
 
 	}
 	return 0;
