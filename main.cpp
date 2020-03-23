@@ -32,9 +32,9 @@ struct matrix
 		n=n_;
 		m=m_;
 		if(type==0)
-		   for(vector<float> u:p)
-				for(int y:u)
-					y=0;
+		   for(int i=0;i<n;i++)
+				for(int j=0;j<m;j++)
+					p[i][j]=0; 
 		if(type==1)
 			for(int i=0;i<n;i++)
 				for(int j=0;j<m;j++)
@@ -116,7 +116,7 @@ matrix tran(const matrix& a)
 
 pair<matrix,int> operator*(const matrix& a,const matrix& b)
 {
-  matrix res;int cost;
+  matrix res;int cost=0;
   res.init(a.n,b.m,0);
   for(int i=0;i<res.n;i++)
     for(int j=0;j<res.m;j++)
@@ -140,8 +140,18 @@ matrix operator*(const matrix& a,float b)
   for(int i=0;i<a.n;i++)
     for(int j=0;j<a.m;j++)
       res.p[i][j]=a.p[i][j]*b;
+  return res;
 }
 
+matrix operator/(const matrix& a,float b)
+{
+  matrix res;
+  res.init(a.n,a.m,0);
+  for(int i=0;i<a.n;i++)
+    for(int j=0;j<a.m;j++)
+      res.p[i][j]=a.p[i][j]/b;
+  return res;
+}
 
 matrix operator+(const matrix& a,const matrix& b)
 {
@@ -152,40 +162,95 @@ matrix operator+(const matrix& a,const matrix& b)
       res.p[i][j]=b.p[i][j]+a.p[i][j];
   return res;
 }
-pair<matrix,int> genobr(const matrix& a)
+pair<matrix,int> genobr(const matrix& p1)
 {
   matrix l;int cost=0;
+  matrix a=p1;
   l.init(a.n,a.n,1);
   for(int i=0;i<a.n-1;i++)
+  {
     for(int j=i+1;j<a.n;j++)
     {
-      float k=((a.p[i][j])/(a.p[i][i]));
+      float k=((a.p[j][i])/(a.p[i][i]));
       cost++;
-      l.p[j][i]=-k;
+      l.p[j][i]=k;
     }
+    for(int j=i;j<a.n;j++)
+      for(int k=i+1;k<a.n;k++)
+      {
+        a.p[j][k]+=a.p[i][i]*-l.p[j][i];
+      }
+  }
   return {l,cost};
 }
-pair<matrix,int> gentotrm(const matrix& a)
+
+
+pair<pair<matrix,matrix>,int> gentotrm(const matrix& a)
 {
-  matrix l;matrix e;matrix ins;int cost=0;
-  ins=genobr(a).first;
+  matrix e;int cost=0;matrix l;
+  //ins=genobr(a).first;
+  matrix l0;
+  l0.init(a.n,a.n,1);
+  matrix b=a;
   l.init(a.n,a.n,1);
   for(int i=0;i<a.n-1;i++)
     for(int j=i+1;j<a.n;j++)
     {
-      e.p[j][i]=-ins.p[j][i];
+      e.init(a.n,a.n,1);
+      float k=-((b.p[j][i])/(b.p[i][i]));
+      l0.p[j][i]=-k;
+      e.p[j][i]=k;
       l=(e*l).first;
+      b=(e*b).first;
       cost+=(e*l).second;
       
     }
-  return {l,cost};
+  return {{l,l0},cost};
 }
-matrix totrm(const matrix& a)
+pair<matrix,int> totrm(const matrix& a)
 {
   matrix l;
-  l=gentotrm(a).first;
+  int cost=0;
+  l=gentotrm(a).first.first;
+  cost+=gentotrm(a).second;
   l=(l*a).first;
-  return l;
+  cost+=(l*a).second;
+  return {l,cost};
+}
+
+
+pair<pair<matrix,matrix>,int> ugentotrm(const matrix& a)
+{
+  matrix e;int cost=0;matrix l;
+  //ins=genobr(a).first;
+  matrix l0;
+  l0.init(a.n,a.n,1);
+  matrix b=a;
+  l.init(a.n,a.n,1);
+  for(int i=a.n-1;i>0;i--)
+    for(int j=i-1;j>-1;j--)
+    {
+      e.init(a.n,a.n,1);
+      float k=-((b.p[j][i])/(b.p[i][i]));
+      l0.p[j][i]=-k;
+      e.p[j][i]=k;
+      l=(e*l).first;
+      b=(e*b).first;
+      cost+=(e*l).second;
+      
+    }
+  return {{l,l0},cost};
+}
+
+pair<matrix,int> utotrm(const matrix& a)
+{
+  matrix l;
+  int cost=0;
+  l=ugentotrm(a).first.first;
+  cost+=gentotrm(a).second;
+  l=(l*a).first;
+  cost+=(l*a).second;
+  return {l,cost};
 }
 
 
@@ -220,6 +285,151 @@ pair<float,float> opr(const matrix& a)
   }
 }
 
+pair<matrix,int> genobrf(const matrix& a)
+{
+  matrix c;
+  matrix m;
+  int cost=0;
+  c.init(a.n,a.n,1);
+  m.init(a.n-1,a.n-1,1);
+  cout<<'b';
+  for(int k1=0;k1<a.n;k1++)
+    for(int k2=0;k2<a.n;k2++)
+    {
+      
+      for(int i=0;i<k1;i++)
+      {
+        for(int j=0;j<k2;j++)
+          m.p[i][j]=a.p[i][j];
+        for(int j=k2+1;j<a.n;j++)
+          m.p[i][j-1]=a.p[i][j];
+      }
+      for(int i=k1+1;i<a.n;i++)
+      {
+        for(int j=0;j<k2;j++)
+          m.p[i-1][j]=a.p[i][j];
+        for(int j=k2+1;j<a.n;j++)
+          m.p[i-1][j-1]=a.p[i][j];
+      }
+      if((k1+k2) % 2==0)
+        c.p[k1][k2]=opr(m).first;
+      else
+        c.p[k1][k2]=-1*opr(m).first;
+      cost+=opr(m).second;
+    }
+  c=tran(c);
+  c=c/(opr(a).first);
+  return {c,cost};
+}
+
+pair<matrix,int> GJm(matrix a)
+{
+  matrix obr;
+  int cost=0;
+  obr=gentotrm(a).first.first;
+  a=totrm(a).first;
+  cost+=totrm(a).second;
+  obr=(ugentotrm(a).first.first*obr).first;
+  cost+=(ugentotrm(a).first.first*obr).second;
+  cost+=ugentotrm(a).second;
+  //cost+=utotrm(a).second;
+  //a=utotrm(a).first;
+  matrix k;
+  k.init(a.n,a.n,1);
+  for(int i=0;i<a.n;i++)
+    k.p[i][i]=1/a.p[i][i];
+  cost+=a.n;
+  //a=(k*a).first;
+  obr=(k*obr).first;
+  cost+=(k*obr).second;
+  return {obr,cost};
+}
+
+pair<pair<matrix,int>,pair<matrix,matrix> > GJgm(matrix a)
+{
+  matrix obr;matrix l;matrix u;
+  int cost=0;
+  obr=gentotrm(a).first.first;
+  a=totrm(a).first;
+  cost+=totrm(a).second;
+  u=a;l=obr;
+  obr=(ugentotrm(a).first.first*obr).first;
+  cost+=(ugentotrm(a).first.first*obr).second;
+  cost+=ugentotrm(a).second;
+  //cost+=utotrm(a).second;
+  //a=utotrm(a).first;
+  matrix k;
+  k.init(a.n,a.n,1);
+  for(int i=0;i<a.n;i++)
+    k.p[i][i]=1/a.p[i][i];
+  cost+=a.n;
+  //a=(k*a).first;
+  obr=(k*obr).first;
+  cost+=(k*obr).second;
+  return {{obr,cost},{l,u}};
+}
+
+pair<matrix,int> obrp(matrix& a,matrix& b)
+{
+  matrix ans;
+  int cost=0;
+  ans.init(a.n,1,0);
+  ans.p[a.n-1][0]=b.p[a.n-1][0]/a.p[a.n-1][a.n-1];
+  for(int i=a.n-1;i>-1;i--)
+  {
+    float s=0;
+    for(int j=i+1;j<a.n;j++)
+    {
+      s+=a.p[i][j]*ans.p[j][0];
+      cost++;
+    }
+    s=b.p[i][0]-s;
+    ans.p[i][0]=s/a.p[i][i];
+    cost++;
+  }
+  return {ans,cost};
+}
+
+pair<matrix,int> prpo(matrix& a,matrix& b)
+{
+  matrix ans;
+  int cost=0;
+  ans.init(a.n,1,0);
+  ans.p[0][0]=b.p[0][0]/a.p[0][0];
+  for(int i=1;i<a.n;i++)
+  {
+    float s=0;
+    for(int j=i-1;j>-1;j--)
+    {
+      s+=a.p[i][j]*ans.p[j][0];
+      cost++;
+    }  
+    s=b.p[i][0]-s;
+    ans.p[i][0]=s/a.p[i][i];
+    cost++;
+  }
+  return {ans,cost};
+}
+
+
+pair<matrix,int> lbmulm(matrix& l,matrix& b)
+{
+  matrix ans;
+  int cost=0;
+  ans.init(l.n,1,0);
+  
+  for(int i=0;i<l.n;i++)
+  {
+    float s=0;
+    for(int j=0;j<i+1;j++)
+    {
+      s+=b.p[j][0]*l.p[i][j];
+      cost++;
+    }
+    ans.p[i][0]=s;
+  }
+  return {ans,cost};
+}
 
 template<typename t>
 void read(t& a)
@@ -502,10 +712,51 @@ int _tmain(int argc, _TCHAR* argv[])
     {
       char a;char b;char c;char d;
       read(a,b,c,d);
-      //in[b]=totrm(in[a]);
-      //in[c]=gentotrm(in[a]).first;
-      in[d]=genobr(in[a]).first;
-      //cout<<gentotrm(in[a]).second<<' '<<genobr(in[a]).second<<endl;
+      in[b]=totrm(in[a]).first;
+      in[c]=gentotrm(in[a]).first.first;
+      in[d]=gentotrm(in[a]).first.second;
+      cout<<"cost:"<<totrm(in[a]).second<<endl;
+    }else if(st=="gp-1")
+    {
+      char a;char b;
+      read(a,b);
+      
+      in[b]=genobrf(in[a]).first;
+      cout<<"cost:"<<genobrf(in[a]).second<<endl;
+    }else if(st=="gjme")
+    {
+      char a;char b;
+      read(a,b);
+      in[b]=GJm(in[a]).first;
+      cout<<"cost:"<<GJm(in[a]).second<<endl;
+    }else if(st=="gjms")
+    {
+      char a,b,c,d;
+      read(a,b);
+      in[b]=GJgm(in[a]).first.first;
+      in[c]=GJgm(in[a]).second.first;
+      in[d]=GJgm(in[a]).second.second;
+      cout<<"cost:"<<GJgm(in[a]).first.second<<endl;
+    }else if(st=="obrp")
+    {
+      char a;char b;char c;
+      read(a,b,c);
+      in[c]=obrp(in[a],in[b]).first;
+      cout<<"cost:"<<obrp(in[a],in[b]).second<<endl;
+      
+    }else if(st=="prpo")
+    {
+      char a;char b;char c;
+      read(a,b,c);
+      in[c]=prpo(in[a],in[b]).first;
+      cout<<"cost:"<<prpo(in[a],in[b]).second<<endl;
+    }else if(st=="lbml")
+    {
+      char a,b,c;
+      read(a,b,c);
+      in[c]=lbmulm(in[a],in[b]).first;
+      cout<<"cost:"<<lbmulm(in[a],in[b]).second<<endl;
+      
     }
     else
     {
